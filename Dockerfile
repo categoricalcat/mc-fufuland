@@ -1,6 +1,5 @@
 FROM eclipse-temurin:21-jre AS builder
 
-ARG MINECRAFT_VERSION="1.21.5"
 ARG FABRIC_LAUNCHER_JAR="/opt/minecraft/mc/fabric-server-mc.1.21.5-loader.0.16.14-launcher.1.0.3.jar"
 ARG MEMORY_ALLOCATION="6G"
 
@@ -15,6 +14,7 @@ COPY start-server.sh ./
 COPY the-modpack.mrpack ./the-modpack.mrpack
 COPY eula.txt ./eula.txt
 COPY server.properties ./server.properties
+COPY server-icon.png ./server-icon.png
 
 RUN chmod +x ./install-mrpack.sh && \
     chmod +x ./start-server.sh && \
