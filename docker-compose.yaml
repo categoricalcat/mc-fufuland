@@ -1,6 +1,15 @@
 name: fufuland
 
 services:
+  playit:
+    image: ghcr.io/playit-cloud/playit-agent
+    platform: linux/amd64
+    network_mode: host
+    env_file:
+      - .env
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+
   mc:
     build:
       context: .
@@ -9,12 +18,10 @@ services:
     ports:
       - "25565:25565"
     volumes:
-      - mc-data:/data/mc
+      - mc-data:/opt/minecraft/mc
     environment:
-      - MEMORY=4G
-      - EULA=TRUE
-      - TYPE=CUSTOM
-      - CUSTOM_SERVER=/data/fabric-server-mc.1.21.5-loader.0.16.14-launcher.1.0.3.jar
+      - MEMORY=8G
+      # - CUSTOM_SERVER=/data/fabric-server-mc.1.21.5-loader.0.16.14-launcher.1.0.3.jar
     restart: no
     stdin_open: true
     tty: true
