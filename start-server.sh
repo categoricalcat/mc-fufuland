@@ -2,6 +2,6 @@
 
 exec java \
   -Xmx${MEMORY_ALLOCATION:-6G} \
-  -Xms1G \
+  -Xms2G \
   -jar "${FABRIC_LAUNCHER_JAR}" \
   nogui
