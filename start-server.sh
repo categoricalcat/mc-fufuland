@@ -11,5 +11,5 @@ echo "Fabric launcher jar: ${PATH_TO_JAR}"
 exec java \
   -Xmx${MEMORY_ALLOCATION:-6G} \
   -Xms2G \
-  -jar "mc/${PATH_TO_JAR}" \
+  -jar "${PATH_TO_JAR}" \
   nogui
