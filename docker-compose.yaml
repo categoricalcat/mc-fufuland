@@ -10,23 +10,47 @@ services:
     environment:
       - SECRET_KEY=${SECRET_KEY}
     depends_on:
-      - server
+      server:
+        condition: service_healthy
 
   server:
+    restart: no
+    stdin_open: true
+    tty: true
     build:
       context: .
       dockerfile: Dockerfile
     container_name: fufuland-server
     ports:
-      - "25565:25565"
+      - 25565:25565
     volumes:
       - mc-data:/opt/minecraft/mc
       - ./server.properties:/opt/minecraft/server.properties
     environment:
       - MEMORY=8G
-    restart: no
-    stdin_open: true
-    tty: true
+    healthcheck:
+      test: ["CMD", "mc-monitor", "status",
+             "-host", "0.0.0.0", "-port", "25565"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  backup:
+    image: busybox:stable
+    profiles:
+      - backup
+    entrypoint: >
+      sh -c '
+      ARCHIVE="mc-data-$(date +%Y-%m-%d-%H-%M-%S).tar.gz" &&
+      echo "Starting backup to $$ARCHIVE..." &&
+      tar -czvf /backup/$$ARCHIVE -C /src . &&
+      echo "Backup completed! Archive stored at /backup/$$ARCHIVE" '
+    volumes:
+      - mc-data:/src:ro           # same named volume, read-only
+      - ./.backups:/backup         # host folder that rclone will read from
+    depends_on:
+      - server
 
 volumes:
   mc-data:
