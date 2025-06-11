@@ -30,10 +30,10 @@ ENV FABRIC_LAUNCHER_JAR=${FABRIC_LAUNCHER_JAR}
 COPY --from=mcbin /mc-monitor /usr/local/bin/
 COPY --from=builder /opt/minecraft/mc ./
 
-COPY eula.txt ./eula.txt
-COPY server.properties ./server.properties
-COPY server-icon.png ./server-icon.png
-COPY ./start-server.sh ./start-server.sh
+COPY eula.txt ./
+COPY server-icon.png ./
+COPY server.properties ./
+COPY start-server.sh ./
 
 RUN chmod +x ./start-server.sh
 

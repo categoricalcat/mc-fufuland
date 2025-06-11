@@ -25,7 +25,7 @@ services:
       - 25565:25565
     volumes:
       - mc-data:/opt/minecraft/mc
-      - ./server.properties:/opt/minecraft/server.properties
+      - ./server.properties:/opt/minecraft/mc/server.properties
     environment:
       - MEMORY=8G
     healthcheck:
