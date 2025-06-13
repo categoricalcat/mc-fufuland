@@ -9,14 +9,23 @@
 
 BASE_URL="https://github.com/nothub/mrpack-install/releases/download/v0.16.10"
 
-# Validate TARGETARCH is set and supported
+# Get TARGETARCH from command line argument or environment variable
+if [ -n "$1" ]; then
+  TARGETARCH="$1"
+  echo "Using TARGETARCH from argument: ${TARGETARCH}"
+elif [ -n "${TARGETARCH}" ]; then
+  echo "Using TARGETARCH from environment: ${TARGETARCH}"
+else
+  echo "Error: TARGETARCH not provided. Please pass it as an argument or set it as an environment variable." >&2
+  echo "Usage: $0 <TARGETARCH>" >&2
+  echo "Supported values are: darwin, darwin-arm64, linux, linux-arm64, windows.exe" >&2
+  exit 1
+fi
+
+# Validate TARGETARCH is supported
 case "${TARGETARCH}" in
 darwin | darwin-arm64 | linux | linux-arm64 | windows.exe)
-  echo "Using TARGETARCH: ${TARGETARCH}"
-  ;;
-"")
-  echo "Error: TARGETARCH is not set. Please export a supported architecture value (e.g. linux-arm64)." >&2
-  exit 1
+  echo "Validated TARGETARCH: ${TARGETARCH}"
   ;;
 *)
   echo "Error: Unsupported TARGETARCH value: ${TARGETARCH}" >&2

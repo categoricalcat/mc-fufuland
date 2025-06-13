@@ -1,7 +1,13 @@
 #!/bin/bash
 
-docker compose down -v --remove-orphans --rmi all
+function prune() {
+  docker system prune -af --volumes
+}
 
-docker system prune -af
+function down_hard() {
+  docker compose down --rmi all -v --remove-orphans
+}
 
-docker compose up
+function up() {
+  docker compose up
+}

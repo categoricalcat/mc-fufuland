@@ -17,26 +17,26 @@ COPY install-mrpack.sh ./
 
 RUN chmod +x ./install-mrpack.sh && \
     ./install-mrpack.sh && \
-    ./mrpack-install the-modpack.mrpack
+    ./mrpack-install server fabric --server-dir mc
 
 # ---------------- Stage 3, the runner ----------------
 FROM eclipse-temurin:21-jre AS runner
 
-WORKDIR /opt/minecraft/mc
+WORKDIR /opt/minecraft
 
 ENV MEMORY_ALLOCATION=${MEMORY_ALLOCATION}
 ENV FABRIC_LAUNCHER_JAR=${FABRIC_LAUNCHER_JAR}
 
 COPY --from=mcbin /mc-monitor /usr/local/bin/
-COPY --from=builder /opt/minecraft/mc ./
+COPY --from=builder /opt/minecraft/mc ./mc/
 
-COPY eula.txt ./
-COPY server-icon.png ./
-COPY server.properties ./
+COPY eula.txt ./mc/
+COPY server-icon.png ./mc/
+COPY server.properties ./mc/
 COPY start-server.sh ./
 
 RUN chmod +x ./start-server.sh
 
 EXPOSE 25565
 
-CMD ["./start-server.sh"]
+ENTRYPOINT ["./start-server.sh"]
