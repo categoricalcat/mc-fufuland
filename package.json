@@ -1,0 +1,17 @@
+{
+  "name": "mc-fufuland-scripts",
+  "version": "1.0.0",
+  "description": "Scripts for processing Minecraft modpacks",
+  "scripts": {
+    "process": "tsx scripts/process.ts"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^24.0.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16"
+  }
+}

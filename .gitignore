@@ -2,3 +2,4 @@ mc
 .env
 .backups
 .DS_Store
+node_modules
