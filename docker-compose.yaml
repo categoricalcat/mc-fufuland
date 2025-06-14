@@ -54,5 +54,27 @@ services:
     depends_on:
       - server
 
+  restore:
+    image: busybox:latest
+    profiles:
+      - restore
+    entrypoint: >
+      sh -c '
+      echo "Starting restore from /backup/latest.tar.gz..." &&
+      if [ -f /backup/latest.tar.gz ]; then
+        echo "Clearing existing data in /dst..." &&
+        rm -rf /dst/* &&
+        echo "Extracting backup..." &&
+        tar -xzvf /backup/latest.tar.gz -C /dst &&
+        echo "Restore completed!";
+      else
+        echo "No backup archive found at /backup/latest.tar.gz" && exit 1;
+      fi '
+    volumes:
+      - mc-data:/dst          # restore target
+      - ./.backups:/backup:ro # host backups folder, read-only
+    depends_on:
+      - server
+
 volumes:
   mc-data:
