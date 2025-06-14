@@ -28,7 +28,7 @@ services:
       - mc-data:/opt/minecraft/mc
       - ./server.properties:/opt/minecraft/mc/server.properties
     environment:
-      - MEMORY=8G
+      - MEMORY_ALLOCATION=10G
     healthcheck:
       test: ["CMD", "mc-monitor", "status",
              "-host", "0.0.0.0", "-port", "25565"]
@@ -38,7 +38,7 @@ services:
       start_period: 5s
 
   backup:
-    image: busybox:stable
+    image: busybox:latest
     profiles:
       - backup
     entrypoint: >
@@ -46,6 +46,7 @@ services:
       ARCHIVE="mc-data-$(date +%Y-%m-%d-%H-%M-%S).tar.gz" &&
       echo "Starting backup to $$ARCHIVE..." &&
       tar -czvf /backup/$$ARCHIVE -C /src . &&
+      cp /backup/$$ARCHIVE /backup/latest.tar.gz &&
       echo "Backup completed! Archive stored at /backup/$$ARCHIVE" '
     volumes:
       - mc-data:/src:ro           # same named volume, read-only
