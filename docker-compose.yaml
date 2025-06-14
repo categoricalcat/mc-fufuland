@@ -38,40 +38,24 @@ services:
       start_period: 5s
 
   backup:
-    image: busybox:latest
+    image: genevera/docker-pigz:latest
     profiles:
       - backup
-    entrypoint: >
-      sh -c '
-      ARCHIVE="mc-data-$(date +%Y-%m-%d-%H-%M-%S).tar.gz" &&
-      echo "Starting backup to $$ARCHIVE..." &&
-      tar -czvf /backup/$$ARCHIVE -C /src . &&
-      cp /backup/$$ARCHIVE /backup/latest.tar.gz &&
-      echo "Backup completed! Archive stored at /backup/$$ARCHIVE" '
+    entrypoint: ["/bin/sh", "/script/backup.sh", "write"]
     volumes:
-      - mc-data:/src:ro           # same named volume, read-only
+      - mc-data:/data:ro           # same named volume, read-only
       - ./.backups:/backup         # host folder that rclone will read from
+      - ./backup.sh:/script/backup.sh:ro
 
   restore:
     image: busybox:latest
     profiles:
       - restore
-    entrypoint: >
-      sh -c '
-      echo "Starting restore from /backup/latest.tar.gz..." &&
-      if [ -f /backup/latest.tar.gz ]; then
-        echo "Clearing existing data in /dst..." &&
-        rm -rf /dst/* &&
-        echo "Extracting backup..." &&
-        tar -xzvf /backup/latest.tar.gz -C /dst &&
-        echo "Restore completed!";
-      else
-        echo "No backup archive found at /backup/latest.tar.gz" && exit 1;
-      fi '
+    entrypoint: ["/bin/sh", "/script/backup.sh", "read"]
     volumes:
-      - mc-data:/dst          # restore target
+      - mc-data:/data          # restore target
       - ./.backups:/backup:ro # host backups folder, read-only
-
+      - ./backup.sh:/script/backup.sh:ro
 
 volumes:
   mc-data:
