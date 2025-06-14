@@ -14,6 +14,7 @@ services:
         condition: service_healthy
 
   server:
+    cpu_shares: 4096
     restart: no
     stdin_open: true
     tty: true
