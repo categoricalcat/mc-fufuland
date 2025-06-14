@@ -9,31 +9,59 @@
 import fs from "fs/promises";
 import path, { dirname, join } from "path";
 import AdmZip from "adm-zip";
+import { promises as fsp } from "fs";
 import type { ModrinthIndex, File } from "../types/modrinth";
 import type { ModrinthProject } from "../types/modrinth-project";
 
 // Configuration
 const config = {
+  indexPath: "modrinth.index.json",
   mrpackPath: "the-modpack.mrpack",
   backupDir: ".backups/the-modpack",
   cacheDir: ".backups/modrinth_cache",
   outputPath: "index-copy.json",
+  processedPackPath: "the-modpack-processed.mrpack",
   modsOnly: false,
+  /** When true, files whose env declares unsupported for client or server are ignored */
+  ignoreUnsupported: false,
 };
 
 // Utility to decide whether a file should be processed based on config.modsOnly
-const shouldProcessFile = (file: File): boolean =>
-  !config.modsOnly || file.path?.startsWith("mods/");
+const isUnsupported = (env?: { client?: string; server?: string }): boolean =>
+  env?.server === "unsupported";
+
+const shouldProcessFile = (file: File): boolean => {
+  if (config.modsOnly && !file.path?.startsWith("mods/")) {
+    return false;
+  }
+  if (config.ignoreUnsupported && isUnsupported(file.env)) {
+    return false;
+  }
+  return true;
+};
 
 // Pure function to extract zip file
 const extractZip = async (
   zipPath: string,
   outputDir: string
 ): Promise<void> => {
+  await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
   const zip = new AdmZip(zipPath);
   zip.extractAllTo(outputDir, true);
 };
+
+// Pure function to zip a folder into an .mrpack file
+const zipFolder = (folder: string, outZip: string): Promise<void> =>
+  new Promise((resolve, reject) => {
+    try {
+      const zip = new AdmZip();
+      zip.addLocalFolder(folder);
+      zip.writeZip(outZip, (err) => (err ? reject(err) : resolve()));
+    } catch (err) {
+      reject(err);
+    }
+  });
 
 // Pure function to parse project ID from URL
 const parseProjectId = (url: string): string | null =>
@@ -125,15 +153,15 @@ const processFileWithDelayAndLogging = async (
   file: File,
   index: number,
   total: number
-): Promise<File> => {
-  if (!shouldProcessFile(file)) {
-    // Skip processing; return original file untouched
-    return file;
-  }
+): Promise<File | null> => {
   console.log(`Processing ${index + 1}/${total}: ${file.path}`);
 
   const processedFile = await processFile(file);
-  await delay(1000 / 30); // Rate limiting
+
+  if (!shouldProcessFile(processedFile)) {
+    console.log(`Skipping ${file.path}`);
+    return null;
+  } else await delay(1000 / 30); // Rate limiting
 
   // Log results
   if (processedFile.env !== file.env) {
@@ -186,7 +214,7 @@ const processModpack = async (
   console.log(`Extracted ${mrpackPath} to ${backupDir}`);
 
   // Read index
-  const indexPath = path.join(backupDir, "modrinth.index.json");
+  const indexPath = path.join(backupDir, config.indexPath);
   const indexContent = await fs.readFile(indexPath, "utf-8");
   const index: ModrinthIndex = JSON.parse(indexContent);
   console.log(`Processing ${index.files.length} files from ${index.name}`);
@@ -197,11 +225,22 @@ const processModpack = async (
   );
 
   // Create updated index
-  const updatedIndex = updateIndex(index, processedFiles);
+  const updatedIndex = updateIndex(
+    index,
+    processedFiles.filter((file) => file !== null)
+  );
 
-  // Write result
-  await fs.writeFile(outputPath, JSON.stringify(updatedIndex, null, 2));
+  // Write result files
+  await Promise.all([
+    fs.writeFile(outputPath, JSON.stringify(updatedIndex, null, 2)),
+    fs.writeFile(indexPath, JSON.stringify(updatedIndex)), // replace in extracted folder
+  ]);
+
   console.log(`\nProcessing complete! Modified index written to ${outputPath}`);
+
+  // Zip the processed folder into a new mrpack
+  await zipFolder(backupDir, config.processedPackPath);
+  console.log(`Created processed pack at ${config.processedPackPath}`);
 };
 
 // Error handling wrapper without try/catch – relies on promise rejection handling

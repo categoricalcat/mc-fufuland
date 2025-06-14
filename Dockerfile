@@ -10,14 +10,16 @@ WORKDIR /opt/minecraft
 ARG FABRIC_LAUNCHER_JAR="/opt/minecraft/mc/fabric-server-mc.1.21.5-loader.0.16.14-launcher.1.0.3.jar"
 ARG MEMORY_ALLOCATION="6G"
 ARG TARGETARCH=linux-arm64
+ARG MODPACK_ARCHIVE=the-modpack-processed.mrpack
 ENV TARGETARCH=${TARGETARCH}
+ENV MODPACK_ARCHIVE=${MODPACK_ARCHIVE}
 
-COPY the-modpack.mrpack ./the-modpack.mrpack
+COPY ${MODPACK_ARCHIVE} ./
 COPY install-mrpack.sh ./
 
 RUN chmod +x ./install-mrpack.sh && \
     ./install-mrpack.sh && \
-    ./mrpack-install server fabric --server-dir mc
+    ./mrpack-install ./${MODPACK_ARCHIVE} --server-dir mc
 
 # ---------------- Stage 3, the runner ----------------
 FROM eclipse-temurin:21-jre AS runner
