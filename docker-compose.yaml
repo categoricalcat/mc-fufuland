@@ -38,20 +38,30 @@ services:
       start_period: 5s
 
   backup:
-    image: genevera/docker-pigz:latest
+    build:
+      context: .
+      dockerfile: backup.dockerfile
+      args:
+        OPERATION: write
+    environment:
+      - OPERATION=write
     profiles:
       - backup
-    entrypoint: ["/bin/sh", "/script/backup.sh", "write"]
     volumes:
       - mc-data:/data:ro           # same named volume, read-only
       - ./.backups:/backup         # host folder that rclone will read from
       - ./backup.sh:/script/backup.sh:ro
 
   restore:
-    image: busybox:latest
+    build:
+      context: .
+      dockerfile: backup.dockerfile
+      args:
+        OPERATION: read
+    environment:
+      - OPERATION=read
     profiles:
       - restore
-    entrypoint: ["/bin/sh", "/script/backup.sh", "read"]
     volumes:
       - mc-data:/data          # restore target
       - ./.backups:/backup:ro # host backups folder, read-only
