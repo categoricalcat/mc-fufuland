@@ -51,8 +51,6 @@ services:
     volumes:
       - mc-data:/src:ro           # same named volume, read-only
       - ./.backups:/backup         # host folder that rclone will read from
-    depends_on:
-      - server
 
   restore:
     image: busybox:latest
@@ -73,8 +71,7 @@ services:
     volumes:
       - mc-data:/dst          # restore target
       - ./.backups:/backup:ro # host backups folder, read-only
-    depends_on:
-      - server
+
 
 volumes:
   mc-data:
