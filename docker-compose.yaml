@@ -21,6 +21,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        TARGETARCH: linux
     container_name: fufuland-server
     ports:
       - 25565:25565
