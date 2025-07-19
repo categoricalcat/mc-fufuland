@@ -1,14 +1,13 @@
 name: fufuland
 
 services:
-  playit:
-    image: ghcr.io/playit-cloud/playit-agent:latest
-    platform: linux/amd64
+  dns:
+    image: cloudflare/cloudflared:latest
     network_mode: host
     env_file:
       - .env
     environment:
-      - SECRET_KEY=${SECRET_KEY}
+      - CF_TOKEN=${CF_TOKEN}
     depends_on:
       server:
         condition: service_healthy
