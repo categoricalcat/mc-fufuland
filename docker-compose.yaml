@@ -40,7 +40,8 @@ services:
     volumes:
       - mc-data:/data:ro           # same named volume, read-only
       - ./.backups:/backup         # host folder that rclone will read from
-      - ./backup.sh:/script/backup.sh:ro
+      - ./scripts/backup.sh:/script/backup.sh:ro
+    restart: "no"
 
   restore:
     build:
@@ -54,8 +55,9 @@ services:
       - restore
     volumes:
       - mc-data:/data          # restore target
-      - ./.backups:/backup:ro # host backups folder, read-only
-      - ./backup.sh:/script/backup.sh:ro
+      - ./.backups:/backup:ro # host backups folder, read-only  
+      - ./scripts/backup.sh:/script/backup.sh:ro
+    restart: "no"
 
 volumes:
   mc-data:

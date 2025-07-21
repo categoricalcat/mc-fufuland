@@ -1,169 +1,92 @@
 # Fufuland – Modded Minecraft Server Stack
 
-## Table of contents
+A Dockerized Fabric-powered Minecraft 1.21.5 server with automated modpack installation, backups, and optional TypeScript tooling.
 
-1. Project overview
-2. Repository layout
-3. Quick start
-4. Configuration
-5. Back-ups & disaster recovery
-6. Updating / changing the modpack
-7. Development scripts (TypeScript)
-8. Troubleshooting
-9. Acknowledgements & licence
+## Quick Start
 
----
-
-## 1. Project overview
-
-This repository contains everything required to run **Fufuland**, a self-hosted, Fabric-powered, modded Minecraft 1.21.5 server inside Docker.
-It provides:
-
-* **`server`** – a multi-stage image that automatically installs the chosen `.mrpack` modpack, applies the Minecraft EULA, and starts the Fabric server.
-* **`playit`** – an optional [Playit.gg](https://playit.gg) tunnel so friends can join without port-forwarding.
-* **`backup` / `restore`** – disposable containers that create compressed snapshots (`.tar.zst`) or restore them.
-* **TypeScript utilities** that post-process the `.mrpack` file (e.g. enriching the Modrinth index with extra metadata).
-
-Everything is orchestrated with **Docker Compose** so the whole stack can be reproduced with a single command.
-
----
-
-## 2. Repository layout
-
-```text
-.
-├── Dockerfile              # Multi-stage build producing the final server image
-├── docker-compose.yaml     # All services & volumes
-├── backup.dockerfile       # Minimal image used by backup / restore jobs
-├── backup.sh               # Shell script executed inside the backup image
-├── install-mrpack.sh       # Downloads the mrpack-install binary for the detected CPU
-├── the-modpack.mrpack      # Original modpack archive
-├── the-modpack-processed.mrpack
-│   └── ...                 # Processed version created by scripts/process.ts
-├── scripts/                # TypeScript helper utilities
-│   └── process.ts          # Enriches modrinth.index.json inside the modpack
-├── types/                  # Shared TypeScript type-defs
-└── .backups/               # Local backup destination (mounted by `backup` service)
-```
-
----
-
-## 3. Quick start
-
-Prerequisites:
-
-* Docker Engine ≥ 20.10
-* Docker Compose ≥ v2 (comes with modern Docker installs)
-
-1.  Clone the repo and `cd` into it.
-2.  Create a `.env` file containing your Playit **`SECRET_KEY`** (skip if you do not plan to use the tunnel).
-3.  Launch everything:
-
+1. Clone the repository
+2. Run the server:
    ```bash
-   docker compose up -d              # builds the image the first time, then starts containers
+   docker compose up -d
    ```
+3. Connect to `localhost:25565`
 
-4.  Join the server on `localhost:25565` (or the hostname given by Playit once the agent connects).
+## Architecture
 
-To tail logs:
+The stack consists of:
 
+- **Server** – Multi-stage Docker build that:
+  - Downloads and installs the modpack (`.mrpack`) automatically
+  - Runs the Fabric server with configurable memory allocation
+  - Includes health monitoring via `mc-monitor`
+  
+- **Backup/Restore** – Separate containers for disaster recovery:
+  - Creates compressed snapshots (`.tar.zst`) of the server data
+  - Stores backups in `.backups/` directory
+  - Supports point-in-time restoration
+
+## Configuration
+
+Key settings in `docker-compose.yaml`:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MEMORY_ALLOCATION` | `10G` | JVM heap size for the server |
+| `FABRIC_VERSION` | `1.21.5` | Minecraft version |
+| `FABRIC_LOADER_VERSION` | `0.16.14` | Fabric loader version |
+
+Server settings are managed through the bind-mounted `server.properties` file.
+
+## Backup Operations
+
+Create a backup:
 ```bash
-docker compose logs -f server | cat
+docker compose --profile backup run --rm backup write
 ```
 
-Stop the server:
-
+Restore from latest backup:
 ```bash
-docker compose stop server
+docker compose --profile restore run --rm restore read
 ```
 
----
+## Modpack Management
 
-## 4. Configuration
+The server automatically installs `the-modpack.mrpack` during build. To update:
 
-Most settings live in `docker-compose.yaml` and can be tweaked via environment variables.
-
-| Variable            | Location                | Default | Description |
-| ------------------- | ----------------------- | ------- | ----------- |
-| `MEMORY_ALLOCATION` | `docker-compose.yaml` & `Dockerfile` | `10G`   | JVM `-Xmx` passed to the Fabric launcher |
-| `SECRET_KEY`        | `.env` (Playit)         | –       | Authenticates your tunnel |
-| `FABRIC_LAUNCHER_JAR` | `Dockerfile`          | current version | Path inside the image to the Fabric launcher |
-
-Minecraft‐specific settings such as difficulty, world seed, etc. are handled through the usual `server.properties` file which is bind-mounted so you can edit it locally.
-
----
-
-## 5. Back-ups & disaster recovery
-
-Back-ups are compressed with **zstd** for speed and stored under `.backups/` (host) ➜ `/backup` (container).
-
-Create a backup (takes a snapshot of the `mc-data` named volume):
-
-```bash
-docker compose --profile backup run --rm backup
-```
-
-This produces e.g. `.backups/mc-data-2024-06-14-22-33-01.tar.zst` and also updates `latest.tar.zst`.
-
-Restore the most recent backup:
-
-```bash
-docker compose --profile restore run --rm restore
-```
-
-⚠️  The restore job **deletes everything** in the volume before extracting the archive – make sure the server is stopped.
-
----
-
-## 6. Updating / changing the modpack
-
-1. Replace `the-modpack.mrpack` with the new version (or another pack of your choosing).
-2. Adjust `Dockerfile` (if the Fabric / Minecraft version changed).
-3. Re-build & re-create the server:
-
+1. Replace the `.mrpack` file
+2. Rebuild the server:
    ```bash
    docker compose build server && docker compose up -d --force-recreate server
    ```
 
-Optionally run `pnpm run process` beforehand to generate `the-modpack-processed.mrpack` which contains enriched metadata.
+### Optional: Modpack Processing
 
----
-
-## 7. Development scripts (TypeScript)
-
-Install Node deps with your favourite manager (here we use **pnpm**):
+The repository includes TypeScript scripts to enrich modpack metadata:
 
 ```bash
 pnpm install
-```
-
-Then run the modpack processor:
-
-```bash
 pnpm run process
 ```
 
-This will:
+This fetches additional mod information from Modrinth API and creates `the-modpack-processed.mrpack` with enhanced metadata.
 
-1. Extract the original `.mrpack` into `.backups/the-modpack/`
-2. Fetch metadata from the Modrinth API and update `modrinth.index.json`
-3. Re-zip the folder into `the-modpack-processed.mrpack`
+## Project Structure
 
----
+```
+.
+├── docker-compose.yaml      # Service orchestration
+├── Dockerfile              # Server image build
+├── backup.dockerfile       # Backup/restore operations
+├── the-modpack.mrpack     # Modpack archive
+├── server.properties      # Minecraft server config
+├── scripts/               # Shell and TypeScript utilities
+│   ├── start-server.sh    # Server entrypoint
+│   ├── backup.sh         # Backup/restore logic
+│   ├── install-mrpack.sh # Modpack installer
+│   └── process.ts        # Modpack metadata enrichment
+└── .backups/             # Local backup storage
+```
 
-## 8. Troubleshooting
+## License
 
-• **Server does not start / keeps restarting** – check logs: `docker compose logs -f server | cat`
-• **Playit agent not connecting** – validate `SECRET_KEY` and that UDP/TCP 25565 are exposed.
-• **Out-of-memory errors** – raise `MEMORY_ALLOCATION` or allocate more to Docker Desktop.
-
----
-
-## 9. Acknowledgements & licence
-
-* [Fabric](https://fabricmc.net/) – lightweight mod loader.
-* [Modrinth](https://modrinth.com) – open-source mod hosting platform.
-* [itzg/mc-monitor](https://github.com/itzg/mc-monitor) – fantastic tool for health-checking servers.
-* [Playit.gg](https://playit.gg) – secure tunnels for Minecraft.
-
-This repository itself is released under the **MIT License** (see `LICENSE` if present). Game assets and mods belong to their respective authors.
+MIT

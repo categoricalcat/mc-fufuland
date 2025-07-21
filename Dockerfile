@@ -16,11 +16,11 @@ ENV TARGETARCH=${TARGETARCH}
 ENV MODPACK_ARCHIVE=${MODPACK_ARCHIVE}
 
 COPY ${MODPACK_ARCHIVE} ./
-COPY install-mrpack.sh ./
+COPY scripts/install-mrpack.sh ./
 
 RUN chmod +x ./install-mrpack.sh && \
-    ./install-mrpack.sh && \
-    ./mrpack-install ./${MODPACK_ARCHIVE} --server-dir mc --server-file server.jar
+./install-mrpack.sh && \
+./mrpack-install ./${MODPACK_ARCHIVE} --server-dir mc --server-file server.jar
 
 # ---------------- Stage 3, the runner ----------------
 FROM eclipse-temurin:21-jre AS runner
@@ -36,7 +36,7 @@ COPY --from=builder /opt/minecraft/mc ./mc/
 COPY eula.txt ./mc/
 COPY server-icon.png ./mc/
 COPY server.properties ./mc/
-COPY start-server.sh ./
+COPY scripts/start-server.sh ./
 
 RUN chmod +x ./start-server.sh
 
