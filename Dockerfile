@@ -7,7 +7,6 @@ FROM eclipse-temurin:21-jre AS builder
 
 WORKDIR /opt/minecraft
 
-ARG FABRIC_LAUNCHER_JAR="/opt/minecraft/mc/fabric-server-mc.1.21.5-loader.0.16.14-launcher.1.0.3.jar"
 ARG MEMORY_ALLOCATION="6G"
 ARG TARGETARCH=linux-arm64
 # ARG MODPACK_ARCHIVE=the-modpack-processed.mrpack
@@ -28,7 +27,6 @@ FROM eclipse-temurin:21-jre AS runner
 WORKDIR /opt/minecraft
 
 ENV MEMORY_ALLOCATION=${MEMORY_ALLOCATION}
-ENV FABRIC_LAUNCHER_JAR=${FABRIC_LAUNCHER_JAR}
 
 COPY --from=mcbin /mc-monitor /usr/local/bin/
 COPY --from=builder /opt/minecraft/mc ./mc/
