@@ -9,20 +9,22 @@ services:
     environment:
       - SECRET_KEY=${SECRET_KEY}
     depends_on:
-      server:
-        condition: service_healthy
+      - server
+    restart: "no"
 
   server:
-    network_mode: host
+    # network_mode: host
     cpu_shares: 4096
-    restart: no
+    restart: "no"
     stdin_open: true
     tty: true
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        TARGETARCH: linux
+        TARGETARCH: ${TARGETARCH:-linux}
+        MEMORY_ALLOCATION: ${MEMORY_ALLOCATION:-16G}
+        MODPACK_ARCHIVE: ${MODPACK_ARCHIVE:-the-modpack-1.1.0.mrpack}
     container_name: fufuland-server
     ports:
       - "25565:25565/tcp"
@@ -30,8 +32,8 @@ services:
     volumes:
       - mc-data:/opt/minecraft/mc
       - ./server.properties:/opt/minecraft/mc/server.properties
-    environment:
-      - MEMORY_ALLOCATION=16G
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "mc-monitor", "status",
              "-host", "0.0.0.0", "-port", "25565"]

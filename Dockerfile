@@ -11,14 +11,15 @@ ARG MEMORY_ALLOCATION="6G"
 ARG TARGETARCH=linux-arm64
 # ARG MODPACK_ARCHIVE=the-modpack-processed.mrpack
 ARG MODPACK_ARCHIVE=the-modpack.mrpack
-ENV TARGETARCH=${TARGETARCH}
+
 ENV MODPACK_ARCHIVE=${MODPACK_ARCHIVE}
+ENV TARGETARCH=${TARGETARCH}
 
 COPY ${MODPACK_ARCHIVE} ./
 COPY scripts/install-mrpack.sh ./
 
 RUN chmod +x ./install-mrpack.sh && \
-./install-mrpack.sh && \
+./install-mrpack.sh ${TARGETARCH} && \
 ./mrpack-install ./${MODPACK_ARCHIVE} --server-dir mc --server-file server.jar
 
 # ---------------- Stage 3, the runner ----------------

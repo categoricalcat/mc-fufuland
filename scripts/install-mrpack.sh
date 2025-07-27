@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e -u
+
 # os types
 # darwin
 # darwin-arm64
@@ -9,7 +11,6 @@
 
 BASE_URL="https://github.com/nothub/mrpack-install/releases/download/v0.16.10"
 
-# Get TARGETARCH from command line argument or environment variable
 if [ -n "$1" ]; then
   TARGETARCH="$1"
   echo "Using TARGETARCH from argument: ${TARGETARCH}"
@@ -34,19 +35,25 @@ darwin | darwin-arm64 | linux | linux-arm64 | windows.exe)
   ;;
 esac
 
-# set -e to exit the script if any command fails
-set -e
-
 # Update package index and install mrpack-install
 apt-get update
 
 # Fetch the appropriate binary and make it executable
 FILENAME="mrpack-install-${TARGETARCH}"
-curl -fsSL "${BASE_URL}/${FILENAME}" -o ./mrpack-install
+DOWNLOAD_URL="${BASE_URL}/${FILENAME}"
+
+echo "Downloading from: ${DOWNLOAD_URL}"
+curl -L --progress-bar --show-error "${DOWNLOAD_URL}" -o ./mrpack-install
+
 chmod +x ./mrpack-install
 
-echo "mrpack-install installed successfully"
+if [ -f ./mrpack-install ]; then
+  echo "mrpack-install installed successfully"
+else
+  echo "Error: mrpack-install was not downloaded or is missing." >&2
+  exit 1
+fi
 
 # Clean up to keep the image small
-apt-get clean
-rm -rf /var/lib/apt/lists/*
+# apt-get clean
+# rm -rf /var/lib/apt/lists/*

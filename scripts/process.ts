@@ -10,8 +10,8 @@ import fs from "fs/promises";
 import path, { dirname, join } from "path";
 import AdmZip from "adm-zip";
 import { promises as fsp } from "fs";
-import type { ModrinthIndex, File } from "../types/modrinth";
-import type { ModrinthProject } from "../types/modrinth-project";
+import type { ModrinthIndex, File } from "../types/modrinth.js";
+import type { ModrinthProject } from "../types/modrinth-project.js";
 
 // Configuration
 const config = {
