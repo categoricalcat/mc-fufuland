@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Scripts for processing Minecraft modpacks",
   "scripts": {
-    "process": "tsx scripts/process.ts"
+    "process": "tsx scripts/index.ts",
+    "dev": "tsx watch scripts/index.ts"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",

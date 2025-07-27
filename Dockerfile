@@ -23,7 +23,7 @@ RUN chmod +x ./install-mrpack.sh && \
 ./mrpack-install ./${MODPACK_ARCHIVE} --server-dir mc --server-file server.jar
 
 # ---------------- Stage 3, the runner ----------------
-FROM eclipse-temurin:21-jre AS runner
+FROM eclipse-temurin:21-jdk AS runner
 
 WORKDIR /opt/minecraft
 
