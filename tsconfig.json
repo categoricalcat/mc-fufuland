@@ -18,7 +18,8 @@
     ]
   },
   "include": [
-    "scripts/**/*"
+    "scripts/**/*",
+    "tsconfig.json"
   ],
   "exclude": [
     "node_modules"
