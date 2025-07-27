@@ -1,92 +1,72 @@
-# Fufuland – Modded Minecraft Server Stack
+# mc-fufuland
 
-A Dockerized Fabric-powered Minecraft 1.21.5 server with automated modpack installation, backups, and optional TypeScript tooling.
+A Dockerized Minecraft server running Fabric 1.21.5 with automated modpack installation and backups.
 
-## Quick Start
+## Tech Stack
 
-1. Clone the repository
-2. Run the server:
-   ```bash
-   docker compose up -d
-   ```
-3. Connect to `localhost:25565`
+- Docker & Docker Compose
+- Fabric-powered Minecraft server
+- TypeScript for modpack processing
+- Playit.gg tunnel for external access
+- Zstd compression for backups
 
-## Architecture
+## Getting Started
 
-The stack consists of:
-
-- **Server** – Multi-stage Docker build that:
-  - Downloads and installs the modpack (`.mrpack`) automatically
-  - Runs the Fabric server with configurable memory allocation
-  - Includes health monitoring via `mc-monitor`
-  
-- **Backup/Restore** – Separate containers for disaster recovery:
-  - Creates compressed snapshots (`.tar.zst`) of the server data
-  - Stores backups in `.backups/` directory
-  - Supports point-in-time restoration
-
-## Configuration
-
-Key settings in `docker-compose.yaml`:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MEMORY_ALLOCATION` | `10G` | JVM heap size for the server |
-| `FABRIC_VERSION` | `1.21.5` | Minecraft version |
-| `FABRIC_LOADER_VERSION` | `0.16.14` | Fabric loader version |
-
-Server settings are managed through the bind-mounted `server.properties` file.
-
-## Backup Operations
-
-Create a backup:
 ```bash
-docker compose --profile backup run --rm backup write
+git clone [repo-url]
+cd mc-fufuland
+docker compose up -d
 ```
 
-Restore from latest backup:
+That's it. Connect to `localhost:25565`.
+
+## How to Run
+
 ```bash
+# Start server
+docker compose up -d
+
+# Stop server
+docker compose down
+
+# View logs
+docker compose logs -f server
+```
+
+## Backups
+
+```bash
+# Create backup
+docker compose --profile backup run --rm backup write
+
+# Restore from latest
 docker compose --profile restore run --rm restore read
 ```
 
-## Modpack Management
+## Update Modpack
 
-The server automatically installs `the-modpack.mrpack` during build. To update:
-
-1. Replace the `.mrpack` file
-2. Rebuild the server:
+1. Replace `the-modpack.mrpack`
+2. Rebuild:
    ```bash
-   docker compose build server && docker compose up -d --force-recreate server
+   docker compose build server
+   docker compose up -d --force-recreate server
    ```
 
-### Optional: Modpack Processing
+## Config
 
-The repository includes TypeScript scripts to enrich modpack metadata:
+Edit `docker-compose.yaml`:
+- `MEMORY_ALLOCATION`: Server RAM (default: 16G)
+- `FABRIC_VERSION`: Minecraft version (1.21.5)
+
+Server settings: `server.properties`
+
+## Optional: Process Modpack
+
+Enriches modpack with metadata from Modrinth:
 
 ```bash
 pnpm install
 pnpm run process
 ```
 
-This fetches additional mod information from Modrinth API and creates `the-modpack-processed.mrpack` with enhanced metadata.
-
-## Project Structure
-
-```
-.
-├── docker-compose.yaml      # Service orchestration
-├── Dockerfile              # Server image build
-├── backup.dockerfile       # Backup/restore operations
-├── the-modpack.mrpack     # Modpack archive
-├── server.properties      # Minecraft server config
-├── scripts/               # Shell and TypeScript utilities
-│   ├── start-server.sh    # Server entrypoint
-│   ├── backup.sh         # Backup/restore logic
-│   ├── install-mrpack.sh # Modpack installer
-│   └── process.ts        # Modpack metadata enrichment
-└── .backups/             # Local backup storage
-```
-
-## License
-
-MIT
+Creates `the-modpack-processed.mrpack` with enhanced mod info.
