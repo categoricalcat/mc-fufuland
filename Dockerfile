@@ -15,6 +15,8 @@ ARG MODPACK_ARCHIVE=the-modpack.mrpack
 ENV MODPACK_ARCHIVE=${MODPACK_ARCHIVE}
 ENV TARGETARCH=${TARGETARCH}
 
+# https://maven.fabricmc.net/net/fabricmc/fabric-installer/1.0.3/fabric-installer-1.0.3.jar
+
 COPY ${MODPACK_ARCHIVE} ./
 COPY scripts/install-mrpack.sh ./
 

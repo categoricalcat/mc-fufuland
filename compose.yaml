@@ -8,8 +8,8 @@ services:
       - .env
     environment:
       - SECRET_KEY=${SECRET_KEY}
-    depends_on:
-      - server
+    # depends_on:
+    #   - server
     restart: "no"
 
   server:
@@ -35,8 +35,8 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "mc-monitor", "status",
-             "-host", "0.0.0.0", "-port", "25565"]
+      test:
+        ["CMD", "mc-monitor", "status", "-host", "0.0.0.0", "-port", "25565"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -53,8 +53,8 @@ services:
     profiles:
       - backup
     volumes:
-      - mc-data:/data:ro           # same named volume, read-only
-      - ./.backups:/backup         # host folder that rclone will read from
+      - mc-data:/data:ro # same named volume, read-only
+      - ./.backups:/backup # host folder that rclone will read from
       - ./scripts/backup.sh:/script/backup.sh:ro
     restart: "no"
 
@@ -69,10 +69,30 @@ services:
     profiles:
       - restore
     volumes:
-      - mc-data:/data          # restore target
-      - ./.backups:/backup:ro # host backups folder, read-only  
+      - mc-data:/data # restore target
+      - ./.backups:/backup:ro # host backups folder, read-only
       - ./scripts/backup.sh:/script/backup.sh:ro
     restart: "no"
 
+  atm:
+    network_mode: host
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: serverpack.Dockerfile
+    container_name: fufuland-serverpack
+    ports:
+      - "25566:25566/tcp"
+      - "25566:25566/udp"
+    volumes:
+      - mc-atm:/opt/minecraft
+      - ./eula.txt:/opt/minecraft/eula.txt
+      - ./server.properties:/opt/minecraft/server.properties
+      - ./server-icon.png:/opt/minecraft/server-icon.png
+    restart: "no"
+
+
 volumes:
   mc-data:
+  mc-atm:

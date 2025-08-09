@@ -1,4 +1,4 @@
-import type { ModrinthIndex, File } from "../../types/modrinth.js";
+import type { ModrinthIndex, File } from "../../../types/modrinth.js";
 
 /**
  * Updates a Modrinth index with new file entries

@@ -22,8 +22,8 @@ export interface Hashes {
 }
 
 export interface Env {
-  client: string;
-  server: string;
+  client: "required" | "optional" | "unsupported";
+  server: "required" | "optional" | "unsupported";
 }
 
 export interface Dependencies {

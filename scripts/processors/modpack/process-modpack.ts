@@ -1,11 +1,28 @@
 import fs from "fs/promises";
-import path from "path";
+import path, { join } from "path";
 import type { ModrinthIndex, File } from "../../../types/modrinth.js";
 import { extractZip, zipFolder } from "../../utils/zip/index.js";
 import { mapSequentially } from "../../utils/async/index.js";
 import { processFileWithDelayAndLogging } from "../file/index.js";
 import { updateIndex } from "./update-index.js";
 import { config } from "../../config.js";
+import { createWriteStream } from "fs";
+import { pipeline } from "stream/promises";
+
+const downloadFile = (url: string) => fetch(url).then(async (res) => {
+  if (!res.body) {
+    throw new Error("No body");
+  }
+
+  const fileName = url.split("/").pop()!;
+  const filePath = join(process.cwd(), config.modsDir, fileName);
+
+  console.log(`Downloading ${url} to ${filePath}`);
+
+  const modFileStream = createWriteStream(filePath);
+  void pipeline(res.body, modFileStream);
+
+})
 
 /**
  * Main processing pipeline for Modrinth modpacks
@@ -40,6 +57,20 @@ export const processModpack = async (
     index,
     processedFiles.filter((file): file is File => file !== null)
   );
+
+  
+  console.log(` Downloading ${updatedIndex.files.length} mods`);
+  for (const file of updatedIndex.files) {
+    if (file.downloads) {
+      for (const download of file.downloads) {
+        if (file.env.server === "required" || file.env.server === "optional") {
+          await downloadFile(download);
+        } else {
+          console.log(`Skipping ${download} because it is ${file.env.server}`);
+        }
+      }
+    }
+  }
 
   // Write result files
   await Promise.all([

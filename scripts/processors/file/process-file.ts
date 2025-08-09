@@ -15,20 +15,7 @@ const cachedFetchProject = withFileCache(
   fetchProject
 );
 
-const downloadFile = (url: string) => fetch(url).then((res) => {
-  if (!res.body) {
-    throw new Error("No body");
-  }
 
-  const fileName = url.split("/").pop()!;
-  const filePath = join(process.cwd(), config.modsDir, fileName);
-
-  console.log(`Downloading ${url} to ${filePath}`);
-
-  const modFileStream = createWriteStream(filePath);
-  void pipeline(res.body, modFileStream);
-
-})
 
 /**
  * Processes a single file by fetching project information and updating its environment configuration
@@ -44,10 +31,6 @@ export const processFile = async (file: File): Promise<File> => {
 
   const project = await cachedFetchProject(projectId);
   const updatedFile = project ? createUpdatedFile(file, project) : file;
-
-  for (const download of updatedFile.downloads) {
-    await downloadFile(download);
-  }
 
   return updatedFile;
 }; 
