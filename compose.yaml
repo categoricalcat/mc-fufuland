@@ -8,11 +8,11 @@ services:
       - .env
     environment:
       - SECRET_KEY=${SECRET_KEY}
-    # depends_on:
-    #   - server
     restart: "no"
 
   server:
+    profiles:
+      - server
     # network_mode: host
     cpu_shares: 4096
     restart: "no"
@@ -53,7 +53,7 @@ services:
     profiles:
       - backup
     volumes:
-      - mc-data:/data:ro # same named volume, read-only
+      - mc-atm:/data:ro # same named volume, read-only
       - ./.backups:/backup # host folder that rclone will read from
       - ./scripts/backup.sh:/script/backup.sh:ro
     restart: "no"
@@ -69,12 +69,14 @@ services:
     profiles:
       - restore
     volumes:
-      - mc-data:/data # restore target
+      - mc-atm:/data # restore target
       - ./.backups:/backup:ro # host backups folder, read-only
       - ./scripts/backup.sh:/script/backup.sh:ro
     restart: "no"
 
   atm:
+    profiles:
+      - atm
     network_mode: host
     tty: true
     stdin_open: true
@@ -90,6 +92,7 @@ services:
       - ./eula.txt:/opt/minecraft/eula.txt
       - ./server.properties:/opt/minecraft/server.properties
       - ./server-icon.png:/opt/minecraft/server-icon.png
+      - ./user_jvm_args.txt:/opt/minecraft/user_jvm_args.txt
     restart: "no"
 
 
