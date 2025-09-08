@@ -1,1 +1,1 @@
-eula=true
+../the.files/mc-fufuland/eula.txt

@@ -1,5 +1,1 @@
-/**
- * Modpack processing functions
- */
-export { processModpack } from "./process-modpack.js";
-export { updateIndex } from "./update-index.js"; 
+../../../../the.files/mc-fufuland/scripts/processors/modpack/index.ts

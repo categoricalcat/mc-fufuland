@@ -1,4 +1,1 @@
-/**
- * Cache utility functions
- */
-export { withFileCache } from "./with-file-cache.js"; 
+../../../../the.files/mc-fufuland/scripts/utils/cache/index.ts
