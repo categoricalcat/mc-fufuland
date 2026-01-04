@@ -1,1 +1,2 @@
-../the.files/mc-fufuland/pnpm-workspace.yaml
+onlyBuiltDependencies:
+  - esbuild

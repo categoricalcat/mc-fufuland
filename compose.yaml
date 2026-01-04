@@ -1,1 +1,101 @@
-../the.files/mc-fufuland/compose.yaml
+name: fufuland
+
+services:
+  tunnel:
+    image: ghcr.io/playit-cloud/playit-agent:latest
+    network_mode: host
+    env_file:
+      - .env
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+    restart: "no"
+
+  server:
+    profiles:
+      - server
+    # network_mode: host
+    cpu_shares: 4096
+    restart: "no"
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TARGETARCH: ${TARGETARCH:-linux}
+        MEMORY_ALLOCATION: ${MEMORY_ALLOCATION:-16G}
+        MODPACK_ARCHIVE: ${MODPACK_ARCHIVE:-the-modpack-1.1.0.mrpack}
+    container_name: fufuland-server
+    ports:
+      - "25565:25565/tcp"
+      - "25565:25565/udp"
+    volumes:
+      - mc-data:/opt/minecraft/mc
+      - ./server.properties:/opt/minecraft/mc/server.properties
+    env_file:
+      - .env
+    healthcheck:
+      test:
+        ["CMD", "mc-monitor", "status", "-host", "0.0.0.0", "-port", "25565"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  backup:
+    build:
+      context: .
+      dockerfile: backup.dockerfile
+      args:
+        OPERATION: write
+    environment:
+      - OPERATION=write
+    profiles:
+      - backup
+    volumes:
+      - mc-atm:/data:ro # same named volume, read-only
+      - ./.backups:/backup # host folder that rclone will read from
+      - ./scripts/backup.sh:/script/backup.sh:ro
+    restart: "no"
+
+  restore:
+    build:
+      context: .
+      dockerfile: backup.dockerfile
+      args:
+        OPERATION: read
+    environment:
+      - OPERATION=read
+    profiles:
+      - restore
+    volumes:
+      - mc-atm:/data # restore target
+      - ./.backups:/backup:ro # host backups folder, read-only
+      - ./scripts/backup.sh:/script/backup.sh:ro
+    restart: "no"
+
+  atm:
+    profiles:
+      - atm
+    network_mode: host
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: serverpack.Dockerfile
+    container_name: fufuland-serverpack
+    ports:
+      - "25566:25566/tcp"
+      - "25566:25566/udp"
+    volumes:
+      - mc-atm:/opt/minecraft
+      - ./eula.txt:/opt/minecraft/eula.txt
+      - ./server.properties:/opt/minecraft/server.properties
+      - ./server-icon.png:/opt/minecraft/server-icon.png
+      - ./user_jvm_args.txt:/opt/minecraft/user_jvm_args.txt
+    restart: "no"
+
+
+volumes:
+  mc-data:
+  mc-atm:
