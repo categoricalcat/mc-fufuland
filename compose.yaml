@@ -53,7 +53,7 @@ services:
     profiles:
       - backup
     volumes:
-      - mc-atm:/data:ro # same named volume, read-only
+      - mc-serverpack:/data:ro # same named volume, read-only
       - ./.backups:/backup # host folder that rclone will read from
       - ./scripts/backup.sh:/script/backup.sh:ro
     restart: "no"
@@ -69,14 +69,14 @@ services:
     profiles:
       - restore
     volumes:
-      - mc-atm:/data # restore target
+      - mc-serverpack:/data # restore target
       - ./.backups:/backup:ro # host backups folder, read-only
       - ./scripts/backup.sh:/script/backup.sh:ro
     restart: "no"
 
-  atm:
+  serverpack:
     profiles:
-      - atm
+      - serverpack
     network_mode: host
     tty: true
     stdin_open: true
@@ -88,14 +88,39 @@ services:
       - "25566:25566/tcp"
       - "25566:25566/udp"
     volumes:
-      - mc-atm:/opt/minecraft
-      - ./eula.txt:/opt/minecraft/eula.txt
-      - ./server.properties:/opt/minecraft/server.properties
-      - ./server-icon.png:/opt/minecraft/server-icon.png
-      - ./user_jvm_args.txt:/opt/minecraft/user_jvm_args.txt
+      - mc-serverpack:/data
+      - ./eula.txt:/data/eula.txt
+      - ./server.properties:/data/server.properties
+      - ./server-icon.png:/data/server-icon.png
+      - ./user_jvm_args.txt:/data/user_jvm_args.txt
+      - ./scripts/start-server.sh:/data/start-server.sh
+      - ./server-1.16.5.jar:/data/server-1.16.5.jar
     restart: "no"
 
+  bias:
+    image: itzg/minecraft-server:latest
+    tty: true
+    stdin_open: true
+    ports:
+      - "25564:25564"
+    environment:
+      EULA: "TRUE"
+      TYPE: "MODRINTH"
+      INIT_MEMORY: "3G"
+      MAX_MEMORY: "7G"
+      MODRINTH_MODPACK: "/data/modpacks/bias.mrpack"
+    volumes:
+      - "mc-bias:/data"
+      - ./server.properties:/data/server.properties
+      - ./server-icon.png:/data/server-icon.png
+      - ./bias.mrpack:/data/modpacks/bias.mrpack
+    network_mode: host
+    dns:
+      - 127.0.0.1
+    env_file:
+      - .env
 
 volumes:
   mc-data:
-  mc-atm:
+  mc-serverpack:
+  mc-bias:

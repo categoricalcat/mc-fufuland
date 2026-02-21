@@ -1,6 +1,6 @@
-FROM eclipse-temurin:21-jre
+FROM --platform=linux/amd64 eclipse-temurin:21-jre
 
-WORKDIR /opt/minecraft
+WORKDIR /data
 
 # Install unzip
 RUN apt-get update && \
@@ -10,10 +10,14 @@ RUN apt-get update && \
 
 # Copy and unzip the server pack
 COPY ServerPack.zip ./
-RUN unzip ServerPack.zip && \
-    rm ServerPack.zip && \
-    chmod +x startserver.sh
+RUN unzip ServerPack.zip -d /data && \
+    rm ServerPack.zip
+
+COPY scripts/start-server.sh ./start-server.sh
+COPY server-1.16.5.jar .
+
+RUN chmod +x ./start-server.sh
 
 EXPOSE 25566
 
-CMD ["./startserver.sh"]
+ENTRYPOINT ["./start-server.sh"]

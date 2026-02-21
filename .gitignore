@@ -4,3 +4,5 @@ mc
 .DS_Store
 node_modules
 ServerPack.zip
+*.mrpack
+*.log
