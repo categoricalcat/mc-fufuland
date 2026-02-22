@@ -1,21 +1,17 @@
-import type { File } from "../../../types/modrinth.js";
-import { parseProjectId, fetchProject } from "../../api/modrinth/index.js";
-import { withFileCache } from "../../utils/cache/index.js";
-import { createUpdatedFile } from "./create-updated-file.js";
-import { join } from "path";
-import { config } from "../../config.js";
-import { createWriteStream } from "fs";
-import { pipeline } from 'stream/promises';
+import type { File } from '../../../types/modrinth.js';
+import { parseProjectId, fetchProject } from '../../api/modrinth/index.js';
+import { withFileCache } from '../../utils/cache/index.js';
+import { createUpdatedFile } from './create-updated-file.js';
+import { join } from 'path';
+import { config } from '../../config.js';
 
 // Create cached version of fetchProject
 const cacheDir = join(process.cwd(), config.cacheDir);
 const cachedFetchProject = withFileCache(
   cacheDir,
   (id: string) => `${id}.json`,
-  fetchProject
+  fetchProject,
 );
-
-
 
 /**
  * Processes a single file by fetching project information and updating its environment configuration
@@ -33,4 +29,4 @@ export const processFile = async (file: File): Promise<File> => {
   const updatedFile = project ? createUpdatedFile(file, project) : file;
 
   return updatedFile;
-}; 
+};

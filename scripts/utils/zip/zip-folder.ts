@@ -1,4 +1,4 @@
-import AdmZip from "adm-zip";
+import AdmZip from 'adm-zip';
 
 /**
  * Compresses a folder into a zip file
@@ -12,8 +12,8 @@ export const zipFolder = (folder: string, outZip: string): Promise<void> =>
     try {
       const zip = new AdmZip();
       zip.addLocalFolder(folder);
-      zip.writeZip(outZip, (err) => (err ? reject(err) : resolve()));
+      zip.writeZip(outZip, err => (err ? reject(err) : resolve()));
     } catch (err) {
       reject(err);
     }
-  }); 
+  });

@@ -6,4 +6,4 @@
  * parseProjectId("https://cdn.modrinth.com/data/ABC123/versions/xyz/mod.jar") // returns "ABC123"
  */
 export const parseProjectId = (url: string): string | null =>
-  url?.split?.("/")?.[4] ?? null; 
+  url?.split?.('/')?.[4] ?? null;

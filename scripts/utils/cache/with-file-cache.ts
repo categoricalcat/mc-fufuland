@@ -1,5 +1,5 @@
-import fs from "fs/promises";
-import { dirname, join } from "path";
+import fs from 'fs/promises';
+import { dirname, join } from 'path';
 
 /**
  * Higher-order function that adds file-based caching to an async function
@@ -14,19 +14,25 @@ export const withFileCache =
   <Arg, Res>(
     cacheDir: string,
     cacheKey: (arg: Arg) => string,
-    fn: (arg: Arg) => Promise<Res>
+    fn: (arg: Arg) => Promise<Res>,
   ) =>
   (arg: Arg): Promise<Res> => {
     const filePath = join(cacheDir, cacheKey(arg));
-    // Try reading the cache
     return fs
-      .readFile(filePath, "utf8")
-      .then((raw) => JSON.parse(raw) as Res)
-      .catch(() => fn(arg))
-      .then((res) =>
+      .readFile(filePath, 'utf8')
+      .then(raw => JSON.parse(raw) as Res)
+      .then(res => {
+        console.log(`Using cached ${filePath}`);
+        return res;
+      })
+      .catch(() => {
+        console.log(`Fetching ${filePath} from API`);
+        return fn(arg);
+      })
+      .then(res =>
         fs
           .mkdir(dirname(filePath), { recursive: true })
-          .then(() => fs.writeFile(filePath, JSON.stringify(res), "utf8"))
-          .then(() => res)
+          .then(() => fs.writeFile(filePath, JSON.stringify(res), 'utf8'))
+          .then(() => res),
       );
-  }; 
+  };

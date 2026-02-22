@@ -1,6 +1,6 @@
-import type { File } from "../../types/modrinth.js";
-import { parseProjectId, fetchProject } from "../../api/modrinth/index.js";
-import { createUpdatedFile } from "./create-updated-file.js";
+import type { File } from '../../types/modrinth.js';
+import { parseProjectId, fetchProject } from '../../api/modrinth/index.js';
+import { createUpdatedFile } from './create-updated-file.js';
 
 /**
  * Alternative file processor that tries all download URLs sequentially
@@ -23,4 +23,4 @@ export const processFileAlt = async (file: File): Promise<File> => {
 
   // If none of the downloads yielded a project, return the original file untouched.
   return file;
-}; 
+};

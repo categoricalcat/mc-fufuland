@@ -53,10 +53,13 @@ services:
     profiles:
       - backup
     volumes:
-      - mc-serverpack:/data:ro # same named volume, read-only
+      - mc-bias:/data:ro # same named volume, read-only
       - ./.backups:/backup # host folder that rclone will read from
       - ./scripts/backup.sh:/script/backup.sh:ro
     restart: "no"
+    network_mode: host
+    dns:
+      - 127.0.0.1
 
   restore:
     build:
@@ -108,12 +111,12 @@ services:
       TYPE: "MODRINTH"
       INIT_MEMORY: "3G"
       MAX_MEMORY: "7G"
-      MODRINTH_MODPACK: "/data/modpacks/bias.mrpack"
+      MODRINTH_MODPACK: "/data/modpacks/bias-processed.mrpack"
     volumes:
       - "mc-bias:/data"
       - ./server.properties:/data/server.properties
       - ./server-icon.png:/data/server-icon.png
-      - ./bias.mrpack:/data/modpacks/bias.mrpack
+      - ./bias-processed.mrpack:/data/modpacks/bias-processed.mrpack
     network_mode: host
     dns:
       - 127.0.0.1

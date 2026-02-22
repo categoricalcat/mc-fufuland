@@ -1,5 +1,5 @@
-import fs from "fs/promises";
-import AdmZip from "adm-zip";
+import fs from 'fs/promises';
+import AdmZip from 'adm-zip';
 
 /**
  * Extracts a zip file to the specified output directory
@@ -9,10 +9,10 @@ import AdmZip from "adm-zip";
  */
 export const extractZip = async (
   zipPath: string,
-  outputDir: string
+  outputDir: string,
 ): Promise<void> => {
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
   const zip = new AdmZip(zipPath);
   zip.extractAllTo(outputDir, true);
-}; 
+};

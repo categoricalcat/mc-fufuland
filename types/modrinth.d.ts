@@ -1,4 +1,4 @@
-export interface ModrinthIndex {
+export type ModrinthIndex = {
   game: string;
   formatVersion: number;
   versionId: string;
@@ -6,27 +6,27 @@ export interface ModrinthIndex {
   summary: string;
   files: File[];
   dependencies: Dependencies;
-}
+};
 
-export interface File {
+export type File = {
   path: string;
   hashes: Hashes;
   env: Env;
   downloads: string[];
   fileSize: number;
-}
+};
 
-export interface Hashes {
+export type Hashes = {
   sha1: string;
   sha512: string;
-}
+};
 
-export interface Env {
-  client: "required" | "optional" | "unsupported";
-  server: "required" | "optional" | "unsupported";
-}
+export type Env = {
+  client: 'required' | 'optional' | 'unsupported';
+  server: 'required' | 'optional' | 'unsupported';
+};
 
-export interface Dependencies {
+export type Dependencies = {
   minecraft: string;
-  "fabric-loader": string;
-}
+  'fabric-loader': string;
+};

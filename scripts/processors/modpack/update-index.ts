@@ -1,4 +1,4 @@
-import type { ModrinthIndex, File } from "../../../types/modrinth.js";
+import type { ModrinthIndex, File } from '../../../types/modrinth.js';
 
 /**
  * Updates a Modrinth index with new file entries
@@ -8,8 +8,8 @@ import type { ModrinthIndex, File } from "../../../types/modrinth.js";
  */
 export const updateIndex = (
   index: ModrinthIndex,
-  processedFiles: File[]
+  processedFiles: File[],
 ): ModrinthIndex => ({
   ...index,
   files: processedFiles,
-}); 
+});

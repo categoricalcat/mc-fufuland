@@ -1,0 +1,8 @@
+{
+    "editor.fontFamily": "'Maple Mono NF CN', 'monospace', monospace",
+    "editor.formatOnSave": true,
+    "eslint.format.enable": true,
+    "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    }
+}

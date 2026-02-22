@@ -5,5 +5,7 @@
  * @param env.server - Server-side support status
  * @returns True if the file is unsupported on the server, false otherwise
  */
-export const isUnsupported = (env?: { client?: string; server?: string }): boolean =>
-  env?.server === "unsupported"; 
+export const isUnsupported = (env?: {
+  client?: string;
+  server?: string;
+}): boolean => env?.server === 'unsupported';

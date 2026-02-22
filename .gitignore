@@ -6,3 +6,4 @@ node_modules
 ServerPack.zip
 *.mrpack
 *.log
+index-copy.json
