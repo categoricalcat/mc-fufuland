@@ -83,3 +83,36 @@ export const processModpack = async (
   await zipFolder(backupDir, config.processedPackPath);
   console.log(`Created processed pack at ${config.processedPackPath}`);
 };
+
+// type FetchWithCacheOptions = RequestInit & {
+//   cacheDir: string;
+//   cacheKey: (url: string) => string;
+// };
+
+// const fetchWithCache = async <R>(
+//   url: string,
+//   options: FetchWithCacheOptions,
+// ): Promise<R | null> => {
+//   const cached = fs
+//     .readFile(
+//       join(process.cwd(), options.cacheDir, options.cacheKey(url)),
+//       'utf-8',
+//     )
+//     .then(raw => JSON.parse(raw) as R)
+//     .catch(() => null);
+
+//   if (cached) return cached;
+
+//   const response = await fetch(url, options);
+//   if (!response.ok) {
+//     return null;
+//   }
+
+//   const writeFile = createWriteStream(
+//     join(process.cwd(), options.cacheDir, options.cacheKey(url)),
+//   );
+
+//   response.body?.pipeTo(writeFile);
+
+//   return data;
+// };

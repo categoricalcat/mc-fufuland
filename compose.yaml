@@ -8,14 +8,14 @@ services:
       - .env
     environment:
       - SECRET_KEY=${SECRET_KEY}
-    restart: "no"
+    restart: 'no'
 
   server:
     profiles:
       - server
     # network_mode: host
     cpu_shares: 4096
-    restart: "no"
+    restart: 'no'
     stdin_open: true
     tty: true
     build:
@@ -27,8 +27,8 @@ services:
         MODPACK_ARCHIVE: ${MODPACK_ARCHIVE:-the-modpack-1.1.0.mrpack}
     container_name: fufuland-server
     ports:
-      - "25565:25565/tcp"
-      - "25565:25565/udp"
+      - '25565:25565/tcp'
+      - '25565:25565/udp'
     volumes:
       - mc-data:/opt/minecraft/mc
       - ./server.properties:/opt/minecraft/mc/server.properties
@@ -36,7 +36,7 @@ services:
       - .env
     healthcheck:
       test:
-        ["CMD", "mc-monitor", "status", "-host", "0.0.0.0", "-port", "25565"]
+        ['CMD', 'mc-monitor', 'status', '-host', '0.0.0.0', '-port', '25565']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -56,12 +56,13 @@ services:
       - mc-bias:/data:ro # same named volume, read-only
       - ./.backups:/backup # host folder that rclone will read from
       - ./scripts/backup.sh:/script/backup.sh:ro
-    restart: "no"
+    restart: 'no'
     network_mode: host
     dns:
       - 127.0.0.1
 
   restore:
+    network_mode: host
     build:
       context: .
       dockerfile: backup.dockerfile
@@ -75,7 +76,7 @@ services:
       - mc-serverpack:/data # restore target
       - ./.backups:/backup:ro # host backups folder, read-only
       - ./scripts/backup.sh:/script/backup.sh:ro
-    restart: "no"
+    restart: 'no'
 
   serverpack:
     profiles:
@@ -88,8 +89,8 @@ services:
       dockerfile: serverpack.Dockerfile
     container_name: fufuland-serverpack
     ports:
-      - "25566:25566/tcp"
-      - "25566:25566/udp"
+      - '25566:25566/tcp'
+      - '25566:25566/udp'
     volumes:
       - mc-serverpack:/data
       - ./eula.txt:/data/eula.txt
@@ -98,28 +99,28 @@ services:
       - ./user_jvm_args.txt:/data/user_jvm_args.txt
       - ./scripts/start-server.sh:/data/start-server.sh
       - ./server-1.16.5.jar:/data/server-1.16.5.jar
-    restart: "no"
+    restart: 'no'
 
   bias:
+    network_mode: host
     image: itzg/minecraft-server:latest
     tty: true
     stdin_open: true
     ports:
-      - "25564:25564"
+      - '25564:25564'
     environment:
-      EULA: "TRUE"
-      TYPE: "MODRINTH"
-      INIT_MEMORY: "3G"
-      MAX_MEMORY: "7G"
-      MODRINTH_MODPACK: "/data/modpacks/bias-processed.mrpack"
+      EULA: 'TRUE'
+      TYPE: 'MODRINTH'
+      INIT_MEMORY: '3G'
+      MAX_MEMORY: '7G'
+      MODRINTH_MODPACK: '/data/modpacks/bias-processed.mrpack'
+      SKIP_SERVER_PROPERTIES: 'TRUE'
+      SERVER_PORT: '25564'
     volumes:
-      - "mc-bias:/data"
+      - 'mc-bias:/data'
       - ./server.properties:/data/server.properties
       - ./server-icon.png:/data/server-icon.png
       - ./bias-processed.mrpack:/data/modpacks/bias-processed.mrpack
-    network_mode: host
-    dns:
-      - 127.0.0.1
     env_file:
       - .env
 
