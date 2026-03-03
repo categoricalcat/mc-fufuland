@@ -63,6 +63,8 @@ services:
 
   restore:
     network_mode: host
+    dns:
+      - 127.0.0.1
     build:
       context: .
       dockerfile: backup.dockerfile
@@ -73,7 +75,7 @@ services:
     profiles:
       - restore
     volumes:
-      - mc-serverpack:/data # restore target
+      - mc-bias:/data # restore target
       - ./.backups:/backup:ro # host backups folder, read-only
       - ./scripts/backup.sh:/script/backup.sh:ro
     restart: 'no'
@@ -103,6 +105,8 @@ services:
 
   bias:
     network_mode: host
+    dns:
+      - 127.0.0.1
     image: itzg/minecraft-server:latest
     tty: true
     stdin_open: true
