@@ -36,6 +36,9 @@ export const processFileWithDelayAndLogging = async (
       projectId
         ? `  Failed to fetch project info for ${file.path}`
         : `  Could not extract project ID from ${file.downloads[0]}`,
+      file.downloads,
+      processedFile.env,
+      file.env,
     );
   } else {
     console.log(`  No downloads found for ${file.path}`);

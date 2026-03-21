@@ -23,6 +23,8 @@ export const processFile = async (file: File): Promise<File> => {
     ? parseProjectId(file.downloads[0])
     : null;
 
+  console.log(`Processing ${file.path} with project id ${projectId}`);
+
   if (!projectId) return file;
 
   const project = await cachedFetchProject(projectId);

@@ -58,18 +58,18 @@ export const processModpack = async (
     processedFiles.filter((file): file is File => file !== null),
   );
 
-  console.log(` Downloading ${updatedIndex.files.length} mods`);
-  for (const file of updatedIndex.files) {
-    if (file.downloads) {
-      for (const download of file.downloads) {
-        if (file.env.server === 'required' || file.env.server === 'optional') {
-          await downloadFile(download);
-        } else {
-          console.log(`Skipping ${download} because it is ${file.env.server}`);
-        }
-      }
-    }
-  }
+  // console.log(` Downloading ${updatedIndex.files.length} mods`);
+  // for (const file of updatedIndex.files) {
+  //   if (file.downloads) {
+  //     for (const download of file.downloads) {
+  //       if (file.env.server === 'required' || file.env.server === 'optional') {
+  //         await downloadFile(download);
+  //       } else {
+  //         console.log(`Skipping ${download} because it is ${file.env.server}`);
+  //       }
+  //     }
+  //   }
+  // }
 
   // Write result files
   await Promise.all([

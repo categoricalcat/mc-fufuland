@@ -116,7 +116,7 @@ services:
       EULA: 'TRUE'
       TYPE: 'MODRINTH'
       INIT_MEMORY: '3G'
-      MAX_MEMORY: '7G'
+      MAX_MEMORY: '12G'
       MODRINTH_MODPACK: '/data/modpacks/bias-processed.mrpack'
       SKIP_SERVER_PROPERTIES: 'TRUE'
       SERVER_PORT: '25564'

@@ -10,4 +10,7 @@ export const fetchProject = (
 ): Promise<ModrinthProject | null> =>
   fetch(`https://api.modrinth.com/v2/project/${projectId}`)
     .then(res => (res.ok ? (res.json() as Promise<ModrinthProject>) : null))
-    .catch(() => null);
+    .catch(e => {
+      console.error(`Failed to fetch project ${projectId}:`, e);
+      return null;
+    });
